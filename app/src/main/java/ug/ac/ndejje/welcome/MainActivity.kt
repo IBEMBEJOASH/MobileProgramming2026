@@ -76,7 +76,7 @@ fun StudentInfo(student: Student) {
 @Composable
 fun StudentIdCard(student: Student) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),git
         contentAlignment = Alignment.Center
     ){
         ElevatedCard(

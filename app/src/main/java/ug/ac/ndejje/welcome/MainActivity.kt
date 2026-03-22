@@ -8,25 +8,36 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ug.ac.ndejje.welcome.ui.theme.NdejjeWelcomeAppTheme
@@ -76,7 +87,7 @@ fun StudentInfo(student: Student) {
 @Composable
 fun StudentIdCard(student: Student) {
     Box(
-        modifier = Modifier.fillMaxWidth(),git
+        modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ){
         ElevatedCard(
@@ -105,14 +116,36 @@ fun StudentIdCard(student: Student) {
 
 @Composable
 fun StudentDirectory() {
-    val students = StudentProvider.studentList
+    // STEP A1: Declare state to hold whatever the user types
+    var searchQuery by remember { mutableStateOf("") }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        items(students) { student ->
-            StudentIdCard(student = student)
+    // STEP A2: Derive a filtered list — recalculates every time searchQuery changes
+    val filteredStudents = StudentProvider.studentList.filter {
+        it.name.contains(searchQuery, ignoreCase = true)
+    }
+
+    // STEP A3: Column places the TextField above the LazyColumn
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        // STEP A4: The search input field
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it }, // Updates state on every keystroke
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            placeholder = { Text(stringResource(R.string.search_placeholder)) },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = "Search Icon")
+            }
+        )
+
+        // STEP A5: The list now uses filteredStudents, NOT the full list
+        LazyColumn(contentPadding = PaddingValues(16.dp)) {
+            items(filteredStudents) { student ->
+                StudentIdCard(student = student)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
